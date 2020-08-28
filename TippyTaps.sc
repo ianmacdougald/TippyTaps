@@ -19,7 +19,7 @@ TippyTaps : CodexHybrid {
 
 	var sliderDictionary, <typingLayout, <particleLayout;
 	var <scroller, currentSynthName, cobraAction, text;
-	var <window, <>activeBuffer, <activeBufferIndex;
+	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
 	*makeTemplates {  | templater |
 		templater.synthDef;
@@ -37,6 +37,7 @@ TippyTaps : CodexHybrid {
 				item.isKindOf(Buffer);
 			});
 		});
+		activeBuffer = buffers[activeBufferIndex % buffers.size];
 		this.prepareAction;
 		this.buildGui;
 	}
