@@ -31,8 +31,6 @@ TippyTaps : CodexHybrid {
 		);
 	}
 
-	load { | bufferArray | this.buffers = bufferArray }
-
 	buffers_{ | newBuffers |
 		if(newBuffers.isCollection, {
 			buffers = newBuffers.select({ | item |
