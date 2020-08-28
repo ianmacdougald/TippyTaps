@@ -13,5 +13,5 @@ SynthDef.new(\mono, {
 		end: end) + (\pos.kr(0.5) * frames);
 	var sig = BufRd.ar(1, buf, phasor, 1.0, 4);
 	var out = sig * env * \amp.kr(0.5);
-	OffsetOut.ar(\outchan.kr(0), Pan2.ar(out, \pan.kr(0)));
+	OffsetOut.ar(\out.kr(0), Pan2.ar(out, \pan.kr(0)));
 });
