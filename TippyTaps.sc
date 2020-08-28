@@ -25,6 +25,12 @@ TippyTaps : CodexHybrid {
 		templater.synthDef;
 	}
 
+	*contribute { | versions |
+		versions.add(
+			[\cobra, Main.packages.asDict.at(\TippyTaps)+/+"cobra"]
+		);
+	}
+
 	load { | bufferArray | this.buffers = bufferArray }
 
 	buffers_{ | newBuffers |
