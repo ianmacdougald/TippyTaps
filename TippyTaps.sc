@@ -15,7 +15,7 @@ TippyTaps : CodexHybrid {
 	var <>devLo = 1.0, <>devHi = 1.0;
 	var <>posPreAmp = 4.0;
 
-	var <>buffers;
+	var <buffers;
 
 	var sliderDictionary, <typingLayout, <particleLayout;
 	var <scroller, currentSynthName, cobraAction, text;
