@@ -21,9 +21,7 @@ TippyTaps : CodexHybrid {
 	var <scroller, currentSynthName, cobraAction, text;
 	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
-	*makeTemplates {  | templater |
-		templater.synthDef;
-	}
+	*makeTemplates {  | templater | templater.synthDef }
 
 	*contribute { | versions |
 		versions.add(
