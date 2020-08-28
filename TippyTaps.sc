@@ -38,8 +38,10 @@ TippyTaps : CodexHybrid {
 			});
 		});
 		activeBuffer = buffers[activeBufferIndex % buffers.size];
-		this.prepareAction;
-		this.buildGui;
+		cobraAction ?? { this.prepareAction };
+		if(window.isNil or: { window.isClosed }, {  	
+			this.buildGui;
+		});
 	}
 
 	prepareAction {
@@ -61,8 +63,6 @@ TippyTaps : CodexHybrid {
 				activeBufferIndex = (activeBufferIndex + 1)
 				% buffers.size;
 				activeBuffer = buffers[activeBufferIndex];
-
-				this.prSetSynthName(activeBuffer);
 
 				newHeader = format("Active buffer name: %",
 					PathName(activeBuffer.path).fileNameWithoutExtension);
