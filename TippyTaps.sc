@@ -87,7 +87,7 @@ TippyTaps : CodexHybrid {
 
 	}
 
-	setUpWindow{
+	buildGui {
 
 		if(window.isNil){
 			window = Window.new(
