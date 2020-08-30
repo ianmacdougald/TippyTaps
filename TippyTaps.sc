@@ -4,8 +4,7 @@ TippyTaps : CodexHybrid {
 	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
 	*makeTemplates {  | templater |
-		templater.synthDef;
-		templater.tippySpecs( "specs" );
+		templater.tippyTaps_synthDef("synthDef");
 	}
 
 	*contribute { | versions |
