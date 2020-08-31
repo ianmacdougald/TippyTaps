@@ -20,13 +20,13 @@ TippyTaps : CodexHybrid {
 			Color(1.0, 0.5, 0.7),
 			Color(1.0, 1.0, 0.0)
 		], inf).asStream;
-		asciiSpec = ControlSpec(48, 127, \lin, 1.0);
+		asciiSpec = ControlSpec(127, 48, \lin, 1.0);
 		this.getDictionaries;
 		this.buildGui;
 	}
 
-	moduleSet_{ | to, from | 
-		window.close; 
+	moduleSet_{ | to, from |
+		window.close;
 		super.moduleSet_(to, from);
 	}
 
@@ -87,7 +87,7 @@ TippyTaps : CodexHybrid {
 		composite.background = colorSequence.next;
 		composite.layout = VLayout(text, slider, boxView);
 
-		slider.activeLo = 0; 
+		slider.activeLo = 0;
 		slider.activeHi = 1;
 
 		//add view to dictionary of views
@@ -95,9 +95,9 @@ TippyTaps : CodexHybrid {
 	}
 
 	updateSpec { | key, spec |
-		if(spec.isKindOf(ControlSpec), {  
+		if(spec.isKindOf(ControlSpec), {
 			modules.synthDef.specs[key] = spec;
-			sliders[key].activeLo = sliders[key].lo; 
+			sliders[key].activeLo = sliders[key].lo;
 			sliders[key].activeHi = sliders[key].hi;
 		});
 	}
@@ -119,9 +119,10 @@ TippyTaps : CodexHybrid {
 	buildGui {
 		if(window.isNil or: { window.isClosed }){
 			var argsComposite = CompositeView().layout = VLayout();
+			var viewsArr;
 			window = Window.new(
 				"Cobra Window",
-				Rect(800, 0.0, 800, 1000), 
+				Rect(800, 0.0, 800, 1000),
 				scroll: true
 			)
 			.front.alwaysOnTop_(true).layout = HLayout();
@@ -131,8 +132,27 @@ TippyTaps : CodexHybrid {
 			.focus(true)
 			.editable_(false);
 
-			views.do { | item | 
-				argsComposite.layout.add(item);
+			viewsArr = views.asArray;
+
+			if(views.size.odd, {
+				var tmpArr = viewsArr[0..(viewsArr.size - 2)];
+				tmpArr = tmpArr.reshape(
+					(tmpArr.size / 2).asInteger,
+					2
+				);
+				viewsArr = tmpArr++[viewsArr.last];
+			}, {
+				viewsArr = viewsArr.reshape(
+					(viewsArr.size / 2).asInteger,
+					2
+				);
+			});
+
+			viewsArr.do { | arr |
+				var composite = CompositeView();
+				composite.layout = HLayout.new;
+				arr.do{ | item | composite.layout.add(item) };
+				argsComposite.layout.add(composite);
 			};
 
 			window.layout.add(text);
@@ -156,8 +176,8 @@ TippyTaps : CodexHybrid {
 		};
 	}
 
-	reloadScripts { 
-		super.reloadScripts; 
+	reloadScripts {
+		super.reloadScripts;
 		this.buildGui;
 	}
 
