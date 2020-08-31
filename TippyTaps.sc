@@ -29,7 +29,7 @@ TippyTaps : CodexHybrid {
 		this.buildGui;
 	}
 
-	reverseMapping { 
+	reverseMappings { 
 		if(asciiSpec.minval==127, { 
 			asciiSpec = ControlSpec(48, 127, \lin, 1);
 		}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
