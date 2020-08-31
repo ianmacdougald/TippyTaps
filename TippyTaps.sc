@@ -17,11 +17,12 @@ TippyTaps : CodexHybrid {
 		colorSequence = Pseq([
 			Color(0.501, 0.91, 0.98),
 			Color(0.6, 1.0, 0.7),
-			Color(0.8, 0.5, 0.1),
+			Color(1.0, 0.5, 0.7),
 			Color(1.0, 1.0, 0.0)
 		], inf).asStream;
 		asciiSpec = ControlSpec(48, 127, \lin, 1.0);
 		this.getDictionaries;
+		this.buildGui;
 	}
 
 	getDictionaries {
@@ -39,7 +40,7 @@ TippyTaps : CodexHybrid {
 		var text, slider, composite, boxView;
 
 		text = StaticText().align_(\center)
-		.string_("% values", name.asString);
+		.string_(format("% values", name.asString));
 
 		slider = RangeSlider().orientation_('horizontal')
 		.action_({ | obj |
@@ -76,6 +77,9 @@ TippyTaps : CodexHybrid {
 		composite = CompositeView();
 		composite.background = colorSequence.next;
 		composite.layout = VLayout(text, slider, boxView);
+
+		slider.activeLo = 0; 
+		slider.activeHi = 1;
 
 		//add view to dictionary of views
 		views.add(name -> composite);
@@ -133,7 +137,7 @@ TippyTaps : CodexHybrid {
 		var specs = modules.synthDef.specs;
 		sliders.keysValuesDo({
 			| key, slider |
-			var tmpspec = ControlSpec(slider.lo, slider.hi, specs[key].warp);
+			var tmpspec = ControlSpec(slider.lo, slider.hi);
 			arr = arr.add(key);
 			arr = arr.add(specs[key].map(
 				tmpspec.map(asciiSpec.unmap(value));
@@ -144,21 +148,25 @@ TippyTaps : CodexHybrid {
 
 	buildGui {
 		if(window.isNil){
+			var argsComposite = CompositeView().layout = VLayout();
 			window = Window.new(
 				"Cobra Window",
-				Rect(901.0, 0.0, 782.0, 1005.0))
-			.front.alwaysOnTop_(true);
-			window.onClose_({ this.free });
+				Rect(800, 0.0, 800, 1000), 
+				scroll: true
+			)
+			.front.alwaysOnTop_(true).layout = HLayout();
 
 			text = TextView()
 			.font_(Font("Monaco", 12))
 			.focus(true)
-			.editable_(false)
-			.string_(
-				(format("Active buffer name: %",
-					PathName(activeBuffer.path).fileNameWithoutExtension)
-				)++"\n\n"
-			);
+			.editable_(false);
+
+			views.do { | item | 
+				argsComposite.layout.add(item);
+			};
+
+			window.layout.add(text);
+			window.layout.add(argsComposite);
 
 			window.view.keyDownAction = {
 				| view, letter, modifier, ascii, keycode, key |
@@ -353,7 +361,7 @@ TippyTaps : CodexHybrid {
 		.string_("Amp Hi").font_(Font("Monaco", 12));
 
 		var ampBoxHiView = CompositeView()
-		.layout_(VLayout(ampBoxHi, ampBoxHiText));
+		.layout_(VLayout(ampBoxHi, ampBoxHiTex);
 
 		var ampBoxView = CompositeView()
 		.layout_(HLayout(ampBoxLoView, ampBoxHiView));
