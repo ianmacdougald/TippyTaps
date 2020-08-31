@@ -85,6 +85,14 @@ TippyTaps : CodexHybrid {
 		views.add(name -> composite);
 	}
 
+	updateSpec { | key, spec |
+		if(spec.isKindOf(ControlSpec), {  
+			modules.synthDef.spec[key] = spec;
+			slider[key].activeLo = slider[key].lo; 
+			slider[key].activeHi = slider[key].hi;
+		});
+	}
+
 	getArguments { | value |
 		var arr = [];
 		var specs = modules.synthDef.specs;
