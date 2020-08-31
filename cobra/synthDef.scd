@@ -23,6 +23,6 @@ SynthDef(\mono, {
 		phasor
 	);
 	sig = sig * env * \ampDB.kr(-12, spec: \db.asSpec).dbamp;
-	sig = Pan2.ar(sig, \pan.kr(0, spec: ControlSpec(-1.0, 1.0)));
+	sig = Pan2.ar(sig, Rand(-1.0, 1.0)); 
 	Out.ar(\out.kr(0), sig)
 })
