@@ -34,39 +34,43 @@ TippyTaps : CodexHybrid {
 		});
 	}
 
-	buildComponent { | name, spec |
+	buildComponent { | key |
 		var boxLo, boxLoText, boxLoComposite;
 		var boxHi, boxHiText, boxHiComposite;
 		var text, slider, composite, boxView;
 
+
 		text = StaticText().align_(\center)
-		.string_(format("% values", name.asString));
+		.string_(format("% values", key.asString));
 
 		slider = RangeSlider().orientation_('horizontal')
 		.action_({ | obj |
+			var spec = modules.synthDef.specs[key];
 			boxLo.value = spec.map(obj.value.lo);
 			boxHi.value = spec.map(obj.value.hi);
 		});
 
 		//add slider to dictionary of sliders
-		sliders.add(name -> slider);
+		sliders.add(key -> slider);
 
 		boxLo = NumberBox().action_({ | obj |
+			var spec = modules.synthDef.specs[key];
 			slider.activeLo = spec.unmap(obj.value);
 		});
 
 		boxLoText = StaticText().align_(\center)
-		.string_(format("% lo", name.asString));
+		.string_(format("% lo", key.asString));
 
 		boxLoComposite = CompositeView()
 		.layout_(VLayout(boxLo, boxLoText));
 
 		boxHi = NumberBox().action_({ | obj |
+			var spec = modules.synthDef.specs[key];
 			slider.activeHi = spec.unmap(obj.value);
 		});
 
 		boxHiText = StaticText().align_(\center)
-		.string_(format("% hi", name.asString));
+		.string_(format("% hi", key.asString));
 
 		boxHiComposite = CompositeView()
 		.layout_(VLayout(boxHi, boxHiText));
@@ -82,12 +86,12 @@ TippyTaps : CodexHybrid {
 		slider.activeHi = 1;
 
 		//add view to dictionary of views
-		views.add(name -> composite);
+		views.add(key -> composite);
 	}
 
 	updateSpec { | key, spec |
 		if(spec.isKindOf(ControlSpec), {  
-			modules.synthDef.spec[key] = spec;
+			modules.synthDef.specs[key] = spec;
 			sliders[key].activeLo = sliders[key].lo; 
 			sliders[key].activeHi = sliders[key].hi;
 		});
@@ -108,7 +112,7 @@ TippyTaps : CodexHybrid {
 	}
 
 	buildGui {
-		if(window.isNil){
+		if(window.isNil or: { window.isClosed }){
 			var argsComposite = CompositeView().layout = VLayout();
 			window = Window.new(
 				"Cobra Window",
@@ -145,6 +149,11 @@ TippyTaps : CodexHybrid {
 				}
 			};
 		};
+	}
+
+	reloadScripts { 
+		super.reloadScripts; 
+		this.buildGui;
 	}
 
 	free {
