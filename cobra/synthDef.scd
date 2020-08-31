@@ -22,7 +22,7 @@ SynthDef(\mono, {
 		buf,
 		phasor
 	);
-	sig = sig * env * \ampDB.kr(-12, spec: ControlSpec(-36, 0));
+	sig = sig * env * \ampDB.kr(-12, spec: ControlSpec(-36, 0)).dbamp;
 	sig = Pan2.ar(sig, \pan.kr(0, spec: ControlSpec(-1.0, 1.0)));
 	Out.ar(\out.kr(0), sig)
 })
