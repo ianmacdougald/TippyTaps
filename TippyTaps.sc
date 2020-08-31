@@ -24,9 +24,15 @@ TippyTaps : CodexHybrid {
 			Color(1.0, 0.5, 0.7),
 			Color(1.0, 1.0, 0.0)
 		], inf).asStream;
-		asciiSpec = ControlSpec(127, 48, \lin, 1.0);
+		asciiSpec = ControlSpec(48, 127, \lin, 1);
 		this.getDictionaries;
 		this.buildGui;
+	}
+
+	reverseMapping { 
+		if(asciiSpec.minval==127, { 
+			asciiSpec = ControlSpec(48, 127, \lin, 1);
+		}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
 	}
 
 	moduleSet_{ | to, from |
