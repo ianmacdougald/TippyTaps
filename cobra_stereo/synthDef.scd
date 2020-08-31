@@ -21,7 +21,7 @@ SynthDef(\synth, {
 		2,
 		buf,
 		phasor
-	).sum;
+	);
 	sig = sig * env * \ampDB.kr(-12, spec: \db.asSpec).dbamp;
 	Out.ar(\out.kr(0), sig)
 })
