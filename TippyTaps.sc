@@ -125,7 +125,7 @@ TippyTaps : CodexHybrid {
 			var argsComposite = CompositeView().layout = VLayout();
 			var viewsArr;
 			window = Window.new(
-				"Cobra Window",
+				moduleSet.asString,	
 				Rect(800, 0.0, 800, 1000),
 				scroll: true
 			)
