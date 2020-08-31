@@ -7,9 +7,9 @@ SynthDef(\mono, {
 	var timescale = \timescale.kr(1, spec: ControlSpec(0.05, 4.0, \exp));
 	var frames = BufFrames.kr(buf);
 	var atk = \atk.kr(0, spec: ControlSpec(0.05, 1.0, \exp));
-	var release = \release.kr(1, spec: ControlSpec(0.05, 1.0, \exp))
+	var release = \release.kr(1, spec: ControlSpec(0.05, 1.0, \exp));
 	var env = Env.perc(atk, release).ar(
-		timeScale: timescale
+		timeScale: timescale,
 		doneAction: Done.freeSelf
 	);
 	var phasor = Phasor.ar(

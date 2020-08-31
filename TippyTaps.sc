@@ -1,16 +1,16 @@
 TippyTaps : CodexHybrid {
-	var <typingLayout, colorSequence;
-	var keyAction, text, sliders, views;
+	var <typingLayout, colorSequence, asciiSpec;
+	var keyAction, text, <sliders, <views;
 	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
 	*makeTemplates {  | templater |
-		templater.tippyTaps_synthDef("synthDef");
+		templater.tippyTaps_synthDef;
 	}
 
 	*contribute { | versions |
 		versions.add(
 			[\cobra, Main.packages.asDict.at(\TippyTaps)+/+"cobra"]
-		)
+		);
 	}
 
 	initHybrid {
@@ -20,20 +20,20 @@ TippyTaps : CodexHybrid {
 			Color(0.8, 0.5, 0.1),
 			Color(1.0, 1.0, 0.0)
 		], inf).asStream;
-		this.getSliders
+		asciiSpec = ControlSpec(48, 127, \lin, 1.0);
+		this.getDictionaries;
 	}
 
-	getSliders {
+	getDictionaries {
 		sliders = ();
-		modules.tippySpecs.keysValuesDo({
+		views = ();
+		modules.synthDef.specs.keysValuesDo({
 			| key, value |
-			if(value.isKindOf(Spec), {
-				this.buildComponent(key, value);
-			});
+			this.buildComponent(key, value);
 		});
 	}
 
-	makeComposite { | name, spec |
+	buildComponent { | name, spec |
 		var boxLo, boxLoText, boxLoComposite;
 		var boxHi, boxHiText, boxHiComposite;
 		var text, slider, composite, boxView;
@@ -47,6 +47,7 @@ TippyTaps : CodexHybrid {
 			boxHi.value = spec.map(obj.value.hi);
 		});
 
+		//add slider to dictionary of sliders
 		sliders.add(name -> slider);
 
 		boxLo = NumberBox().action_({ | obj |
@@ -72,9 +73,12 @@ TippyTaps : CodexHybrid {
 		boxView = CompositeView()
 		.layout_(HLayout(boxLoComposite, boxHiComposite));
 
-		views.add(name -> CompositeView.background_(colorSequence.next)
-			.layout_(VLayout(text, slider, boxView))
-		);
+		composite = CompositeView();
+		composite.background = colorSequence.next;
+		composite.layout = VLayout(text, slider, boxView);
+
+		//add view to dictionary of views
+		views.add(name -> composite);
 
 		/*;
 		var rateBoxLo = NumberBox().action_({|view|
@@ -113,31 +117,32 @@ TippyTaps : CodexHybrid {
 	}
 
 	/*buffers_{ | newBuffers |
-		if(newBuffers.isCollection, {
-			buffers = newBuffers.select({ | item |
-				item.isKindOf(Buffer);
-			});
-		});
-		activeBuffer = buffers[activeBufferIndex % buffers.size];
-		if(window.isNil or: { window.isClosed }, {
-			this.buildGui;
-		});
+	if(newBuffers.isCollection, {
+	buffers = newBuffers.select({ | item |
+	item.isKindOf(Buffer);
+	});
+	});
+	activeBuffer = buffers[activeBufferIndex % buffers.size];
+	if(window.isNil or: { window.isClosed }, {
+	this.buildGui;
+	});
 	}*/
 
 	getArguments { | value |
 		var arr = [];
+		var specs = modules.synthDef.specs;
 		sliders.keysValuesDo({
 			| key, slider |
-			var min = slider[key].lo;
-			var max = slider[key].hi;
-			var value = modules.tippySpecs[key].map(rrand(min, max));
+			var tmpspec = ControlSpec(slider.lo, slider.hi, specs[key].warp);
 			arr = arr.add(key);
-			arr = arr.add(value);
+			arr = arr.add(specs[key].map(
+				tmpspec.map(asciiSpec.unmap(value));
+			));
 		});
+		^arr;
 	}
 
 	buildGui {
-
 		if(window.isNil){
 			window = Window.new(
 				"Cobra Window",
@@ -161,12 +166,9 @@ TippyTaps : CodexHybrid {
 				if(ascii==13){
 					var arguments = this.getArguments(ascii.wrap(48, 127));
 					var newHeader;
-					//activeBufferIndex = (activeBufferIndex + 1)
-					//% buffers.size;
-					//activeBuffer = buffers[activeBufferIndex];
 
-					newHeader = format("Active buffer name: %",
-						PathName(activeBuffer.path).fileNameWithoutExtension);
+					/*					newHeader = format("Active buffer name: %",
+					PathName(activeBuffer.path).fileNameWithoutExtension);*/
 
 					text !? {text.string = newHeader++"\n\n"};
 				}{
@@ -524,7 +526,7 @@ TippyTaps : CodexHybrid {
 		*/
 	}
 
-	free{
+	free {
 		if(window.isNil.not){
 			window.onClose = nil;
 			window.close;
