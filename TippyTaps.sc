@@ -1,6 +1,6 @@
 TippyTaps : CodexHybrid {
 	var <typingLayout, colorSequence, asciiSpec;
-	var keyAction, text, <sliders, <views;
+	var keyAction, text, sliders, views;
 	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
 	*makeTemplates {  | templater |
