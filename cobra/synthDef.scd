@@ -5,8 +5,8 @@ SynthDef(\mono, {
 	//The following control will be:
 	var timescale = \timescale.kr(1, spec: ControlSpec(0.05, 4.0, \exp));
 	var frames = BufFrames.kr(buf);
-	var atk = \atk.kr(0, spec: ControlSpec(0.05, 1.0, \exp));
-	var release = \release.kr(1, spec: ControlSpec(0.05, 1.0, \exp));
+	var atk = \atk.kr(0, spec: ControlSpec(0.01, 0.5, \exp));
+	var release = \release.kr(1, spec: ControlSpec(0.01, 0.5, \exp));
 	var env = Env.perc(atk, release).ar(
 		timeScale: timescale,
 		doneAction: Done.freeSelf
