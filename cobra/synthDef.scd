@@ -1,8 +1,7 @@
 //If you want to control an argument from the gui,
 //register a corresponding ControlSpec object for it.
 SynthDef(\mono, {
-	//The following control will not be accessible from the gui:
-	var buf = \buf.kr(0);
+	var buf = \buf.kr(0, spec: ControlSpec(0, 32));
 	//The following control will be:
 	var timescale = \timescale.kr(1, spec: ControlSpec(0.05, 4.0, \exp));
 	var frames = BufFrames.kr(buf);
