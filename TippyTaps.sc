@@ -25,6 +25,11 @@ TippyTaps : CodexHybrid {
 		this.buildGui;
 	}
 
+	moduleSet_{ | to, from | 
+		window.close; 
+		super.moduleSet_(to, from);
+	}
+
 	getDictionaries {
 		sliders = ();
 		views = ();
