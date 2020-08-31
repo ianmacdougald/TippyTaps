@@ -88,8 +88,8 @@ TippyTaps : CodexHybrid {
 	updateSpec { | key, spec |
 		if(spec.isKindOf(ControlSpec), {  
 			modules.synthDef.spec[key] = spec;
-			slider[key].activeLo = slider[key].lo; 
-			slider[key].activeHi = slider[key].hi;
+			sliders[key].activeLo = sliders[key].lo; 
+			sliders[key].activeHi = sliders[key].hi;
 		});
 	}
 
