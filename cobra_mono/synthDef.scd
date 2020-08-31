@@ -1,6 +1,6 @@
 //If you want to control an argument from the gui,
 //register a corresponding ControlSpec object for it.
-SynthDef(\mono, {
+SynthDef(\synth, {
 	var buf = \buf.kr(0, spec: ControlSpec(0, 32));
 	//The following control will be:
 	var timescale = \timescale.kr(1, spec: ControlSpec(0.05, 4.0, \exp));
