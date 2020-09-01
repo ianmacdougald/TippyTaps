@@ -33,4 +33,46 @@ private::reloadScripts
 private::buildGui
 private::window
 
-Examples::
+EXAMPLES::
+code::
+//1. Instance a new TippyTaps object using templated modules.
+s.waitForBoot({ t = TippyTaps.new(\example) });
+
+//2. Type in the big white box to play it.
+
+//3. Adjust the sliders and hit the buttons. 
+
+//4. Update the range of the slider. 
+t.updateSpec(\freq, ControlSpec(240, 4800, \exp));
+::
+
+subsection::Defining new arguments
+To define new arguments for TippyTaps, edit the link::Classes/SynthDef:: module. Every link::Classes/NamedControl:: with a link::Classes/ControlSpec:: object will be convereted into a controllable component on the TippyTaps. I'll walk you through this for clarity's sake: 
+
+First, create a new directory of modules using templates, and open the modules. 
+note::link::Classes/CodexComposite#-openModules#-openModules:: is only supported for the editors scide, scvim, and scnvim::
+code:: 
+s.waitForBoot({ t = TippyTaps(\fromHelp) });
+t.openModules;
+::
+
+Second, edit the synthDef module file. Below is an example of some changes you can make. Be sure to add ControlSpec objects to the arguments you want to be able to control with the gui.
+code::
+SynthDef(\synth, { 
+	var freq = \freq.kr(400, spec: ControlSpec(240, 4800, \exp));
+	var cutoffRatio = \cutoffRatio.kr(1.05, spec: ControlSpec(1.05, 8.0, \exp));
+	var rq = \rq.kr(0.1, spec: ControlSpec(0.1, 0.8, \exp));
+	var sig = RLPF.ar(
+		LFSaw.ar(freq), 
+		(freq * cutoffRatio).clip(20.0, 16000.0), 
+		rq
+	);
+	var env = Env.perc.ar(doneAction: 2);
+	Out.ar(\out.kr(0), sig * env * 0.2 ! 2);
+});
+::
+
+Third, save the edits and reload the scripts. Then play around and repeat. 
+code::
+t.reloadScripts; 
+::
