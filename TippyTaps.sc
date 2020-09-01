@@ -1,6 +1,6 @@
 TippyTaps : CodexHybrid {
-	var colorSequence, <window;
-	var keyAction, text, sliders, toggles, views, <group;
+	var colorSequence, <window, keyAction, group;
+	var sliders, toggles, composites, <ioViews, <ios;
 
 	*makeTemplates {  | templater |
 		templater.tippyTaps_synthDef;
@@ -23,9 +23,13 @@ TippyTaps : CodexHybrid {
 			Color(1.0, 0.5, 0.7),
 			Color(1.0, 1.0, 0.0)
 		], inf).asStream;
-		this.getDictionaries;
-		this.initGroup;
-		this.buildGui;
+		Routine({
+			server.sync;
+			this.initSliders;
+			this.initIOs;
+			this.initGroup;
+			this.buildGui;
+		}).play(AppClock);
 	}
 
 	initGroup {
@@ -40,17 +44,65 @@ TippyTaps : CodexHybrid {
 		super.moduleSet_(to, from);
 	}
 
-	getDictionaries {
+	initSliders {
 		sliders = ();
-		views = ();
+		composites = ();
 		toggles = ();
 		modules.synthDef.specs.keysValuesDo({
 			| key, value |
-			this.buildComponent(key, value);
+			this.sliders(key, value);
 		});
 	}
 
-	buildComponent { | key |
+	initIOs {
+		ios = ();
+		ioViews = ();
+		this.fillIOs(\inputs);
+		this.fillIOs(\outputs);
+	}
+
+	fillIOs { | type(\outputs) |
+		var synthDefDesc = this.class.cache[moduleSet].synthDef.desc;
+		var coll = synthDefDesc.perform(type);
+		if(coll.isEmpty.not, {
+			var arr = [];
+
+			arr = arr.add(
+				StaticText()
+				.align_(\center)
+				.string_(type.asString)
+				.font_(Font.default.copy.size_(24));
+			);
+
+			coll.do { | desc, index |
+				var channels = desc.numberOfChannels;
+				var offset = if(
+					channels >= 2 and: { index > 0 },
+					{ channels - 1 },
+					{ 0 }
+				);
+				var name = desc.startingChannel.asSymbol.postln;
+				var composite = CompositeView();
+
+				var label = StaticText()
+				.align_(\center)
+				.string_(name.asString)
+				.font_(Font.default.copy.size_(18));
+
+				var box = NumberBox()
+				.align_(\center)
+				.string_(index + offset)
+				.font_(Font.default.copy.size_(18))
+				.action_({ | obj | ios[name] = obj.string });
+
+				composite.layout = HLayout(label, box);
+				arr = arr.add(composite);
+			};
+			ioViews[type] = arr;
+		});
+	}
+
+	sliders { | key |
 		var boxLo, boxLoText, boxLoComposite;
 		var boxHi, boxHiText, boxHiComposite;
 		var text, slider, composite, boxView;
@@ -125,8 +177,8 @@ TippyTaps : CodexHybrid {
 		slider.activeLo = 0;
 		slider.activeHi = 1;
 
-		//add view to dictionary of views
-		views.add(key -> composite);
+		//add view to dictionary of composites
+		composites.add(key -> composite);
 	}
 
 	updateSpec { | key, spec |
@@ -152,13 +204,14 @@ TippyTaps : CodexHybrid {
 				sliderSpec.map(asciiSpec.unmap(value));
 			));
 		});
-		^(arr++[outLabel, outBus]);
+		ios.do { | dict | arr = arr++dict.asPairs };
+		^arr;
 	}
 
 	buildGui {
 		if(window.isNil or: { window.isClosed }){
 			var argsComposite = CompositeView().layout = VLayout();
-			var viewsArr, textLabel, textComposite;
+			var compositesArr, text, textLabel, textComposite, ioComposite;
 			window = Window.new(
 				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
@@ -171,30 +224,37 @@ TippyTaps : CodexHybrid {
 			.font_(Font.default.copy.size_(24));
 
 			text = TextView()
-			.font_(Font("Monaco", 12))
+			.font_(Font.default.copy.size_(18))
 			.focus(true)
 			.editable_(false);
 
+			ioComposite = CompositeView().layout = VLayout();
+			ioViews.do{ | array |
+				if(array.isEmpty.not, {
+					array.do{ | item | ioComposite.layout.add(item) };
+				});
+			};
+
 			textComposite = CompositeView()
-			.layout_(VLayout(textLabel, text));
+			.layout_(VLayout(ioComposite, textLabel, text));
 
-			viewsArr = views.asArray;
+			compositesArr = composites.asArray;
 
-			if(views.size.odd, {
-				var tmpArr = viewsArr[0..(viewsArr.size - 2)];
+			if(composites.size.odd, {
+				var tmpArr = compositesArr[0..(compositesArr.size - 2)];
 				tmpArr = tmpArr.reshape(
 					(tmpArr.size / 2).asInteger,
 					2
 				);
-				viewsArr = tmpArr++[viewsArr.last];
+				compositesArr = tmpArr++[compositesArr.last];
 			}, {
-				viewsArr = viewsArr.reshape(
-					(viewsArr.size / 2).asInteger,
+				compositesArr = compositesArr.reshape(
+					(compositesArr.size / 2).asInteger,
 					2
 				);
 			});
 
-			viewsArr.do { | arr |
+			compositesArr.do { | arr |
 				var composite = CompositeView();
 				composite.layout = HLayout.new;
 				arr.do{ | item | composite.layout.add(item) };
