@@ -5,20 +5,20 @@ SynthDef(\synth, {
 	//The following control will be:
 	var timescale = \timescale.kr(1, spec: ControlSpec(0.05, 1.0, \exp));
 	var frames = BufFrames.kr(buf);
-	var atk = \atk.kr(0, spec: ControlSpec(0.01, 0.5, \exp));
-	var release = \release.kr(1, spec: ControlSpec(0.01, 1.0, \exp));
+	var atk = \atk.kr(0, spec: ControlSpec(0.001, 0.5, \exp));
+	var release = \release.kr(1, spec: ControlSpec(0.1, 1.0, \exp));
 	var env = Env.perc(atk, release).ar(
 		timeScale: timescale,
 		doneAction: Done.freeSelf
 	);
 	var phasor = Phasor.ar(
 		0,
-		BufRateScale.kr(buf) * \rate.kr(1, spec: ControlSpec(0.05, 8.0, \exp)),
+		BufRateScale.kr(buf) * \rate.kr(1, spec: ControlSpec(0.1, 8.0, \exp)),
 		0,
 		timescale * SampleRate.ir
 	) + (\pos.kr(0.5, spec: ControlSpec(0.0, 4.0)) * frames).wrap(0, frames);
 	var sig = BufRd.ar(
-		2,
+		1,
 		buf,
 		phasor
 	);
