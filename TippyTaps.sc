@@ -1,7 +1,6 @@
 TippyTaps : CodexHybrid {
-	var <typingLayout, colorSequence, asciiSpec;
+	var colorSequence, asciiSpec, <window;
 	var keyAction, text, sliders, toggles, views, <group;
-	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
 	*makeTemplates {  | templater |
 		templater.tippyTaps_synthDef;
@@ -34,12 +33,6 @@ TippyTaps : CodexHybrid {
 			group = Group.new;
 			group.onFree({ group = nil });
 		}
-	}
-
-	reverseMappings {
-		if(asciiSpec.minval==127, {
-			asciiSpec = ControlSpec(48, 127, \lin, 1);
-		}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
 	}
 
 	moduleSet_{ | to, from |
