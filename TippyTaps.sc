@@ -1,3 +1,4 @@
+//Note: input and output argument fields don't work with synths yet.
 TippyTaps : CodexHybrid {
 	var colorSequence, <window, keyAction, group;
 	var sliders, toggles, composites, ioViews, ios;
@@ -92,6 +93,8 @@ TippyTaps : CodexHybrid {
 				.font_(Font.default.copy.size_(14))
 				.action_({ | obj | ios[name] = obj.string })
 				.maxDecimals_(4);
+
+				box.valueAction = 0;
 
 				composite.layout = HLayout(label, box, 12);
 				arr = arr.add(composite);
@@ -243,8 +246,7 @@ TippyTaps : CodexHybrid {
 				sliderSpec.map(asciiSpec.unmap(value));
 			));
 		});
-		ios.do { | dict | arr = arr++dict.asPairs };
-		^arr;
+		^(arr++ios.asPairs);
 	}
 
 	buildGui {
@@ -308,7 +310,6 @@ TippyTaps : CodexHybrid {
 			window.view.keyDownAction = {
 				| view, letter, modifier, ascii, keycode, key |
 				if(ascii==13){
-					var arguments = this.getArguments(ascii.wrap(48, 127));
 					text !? { text.string = ""; }
 				}{
 					text !? {text.string = text.string++letter};
