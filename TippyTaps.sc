@@ -1,6 +1,6 @@
 //Note: input and output argument fields don't work with synths yet.
 TippyTaps : CodexHybrid {
-	var colorSequence, <window, keyAction, group;
+	var colorSequence, <window, keyAction, <>group;
 	var sliders, toggles, composites, ioViews, ios;
 
 	*makeTemplates {  | templater |
@@ -28,16 +28,8 @@ TippyTaps : CodexHybrid {
 			server.sync;
 			this.initSliders;
 			this.initIOs;
-			this.initGroup;
 			this.buildGui;
 		}).play(AppClock);
-	}
-
-	initGroup {
-		group ?? {
-			group = Group.new;
-			group.onFree({ group = nil });
-		}
 	}
 
 	moduleSet_{ | to, from |
@@ -168,7 +160,7 @@ TippyTaps : CodexHybrid {
 		toggle = Button()
 		.states_([
 			["", Color.black, Color.white],
-			["X", Color(1.0, 0.6, 0.9), Color.white]
+			["X", Color.black, Color.white]
 		]).font_(font);
 
 		toggles.reverse.add(key -> toggle);
@@ -183,7 +175,7 @@ TippyTaps : CodexHybrid {
 		collapse = Button()
 		.states_([
 			["", Color.black, Color.white],
-			["X", Color(1.0, 0.6, 0.9), Color.white]
+			["X", Color.black, Color.white]
 		]).font_(font)
 		.action_({
 			| obj |
@@ -313,11 +305,10 @@ TippyTaps : CodexHybrid {
 					text !? { text.string = ""; }
 				}{
 					text !? {text.string = text.string++letter};
-					this.initGroup;
 					Synth(
 						modules.synthDef.name,
 						this.getArguments(ascii.wrap(48, 127)),
-						group
+						group ?? { server.defaultGroup }
 					);
 				}
 			};
@@ -334,7 +325,6 @@ TippyTaps : CodexHybrid {
 	close {
 		if( window.notNil and: { window.isClosed.not }, {
 			window.close;
-			if(group.notNil, { group.free });
 		});
 	}
 
