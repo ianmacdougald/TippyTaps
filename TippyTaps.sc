@@ -25,6 +25,7 @@ TippyTaps : CodexHybrid {
 		], inf).asStream;
 		asciiSpec = ControlSpec(48, 127, \lin, 1);
 		this.getDictionaries;
+		this.initGroup;
 		this.buildGui;
 	}
 
