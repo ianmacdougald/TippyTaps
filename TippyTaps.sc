@@ -1,5 +1,5 @@
 TippyTaps : CodexHybrid {
-	var colorSequence, asciiSpec, <window;
+	var colorSequence, <window;
 	var keyAction, text, sliders, toggles, views, <group;
 
 	*makeTemplates {  | templater |
@@ -23,7 +23,6 @@ TippyTaps : CodexHybrid {
 			Color(1.0, 0.5, 0.7),
 			Color(1.0, 1.0, 0.0)
 		], inf).asStream;
-		asciiSpec = ControlSpec(48, 127, \lin, 1);
 		this.getDictionaries;
 		this.initGroup;
 		this.buildGui;
@@ -153,13 +152,13 @@ TippyTaps : CodexHybrid {
 				sliderSpec.map(asciiSpec.unmap(value));
 			));
 		});
-		^arr;
+		^(arr++[outLabel, outBus]);
 	}
 
 	buildGui {
 		if(window.isNil or: { window.isClosed }){
 			var argsComposite = CompositeView().layout = VLayout();
-			var viewsArr;
+			var viewsArr, textLabel, textComposite;
 			window = Window.new(
 				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
@@ -167,10 +166,17 @@ TippyTaps : CodexHybrid {
 			)
 			.front.alwaysOnTop_(true).layout = HLayout();
 
+			textLabel = StaticText()
+			.align_(\center).string_("Type here!")
+			.font_(Font.default.copy.size_(24));
+
 			text = TextView()
 			.font_(Font("Monaco", 12))
 			.focus(true)
 			.editable_(false);
+
+			textComposite = CompositeView()
+			.layout_(VLayout(textLabel, text));
 
 			viewsArr = views.asArray;
 
@@ -195,7 +201,7 @@ TippyTaps : CodexHybrid {
 				argsComposite.layout.add(composite);
 			};
 
-			window.layout.add(text);
+			window.layout.add(textComposite);
 			window.layout.add(argsComposite);
 
 			window.view.keyDownAction = {
