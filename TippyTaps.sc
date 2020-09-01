@@ -66,11 +66,16 @@ TippyTaps : CodexHybrid {
 		var coll = synthDefDesc.perform(type);
 		if(coll.isEmpty.not, {
 			var arr = [];
+			var title; 
+
+			if(type==\outputs, { 
+				title = "output busses";
+			}, { title = "input busses" });
 
 			arr = arr.add(
 				StaticText()
 				.align_(\center)
-				.string_(type.asString)
+				.string_(title)
 				.font_(Font.default.copy.size_(24));
 			);
 
@@ -95,7 +100,7 @@ TippyTaps : CodexHybrid {
 				.font_(Font.default.copy.size_(18))
 				.action_({ | obj | ios[name] = obj.string });
 
-				composite.layout = HLayout(label, box);
+				composite.layout = HLayout(label, 400, box);
 				arr = arr.add(composite);
 			};
 			ioViews[type] = arr;
