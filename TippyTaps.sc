@@ -1,7 +1,6 @@
 TippyTaps : CodexHybrid {
 	var colorSequence, <window, keyAction, group;
-	var <sliders, toggles, composites, <ioViews, <ios;
-	var collapses;
+	var sliders, toggles, composites, ioViews, ios;
 
 	*makeTemplates {  | templater |
 		templater.tippyTaps_synthDef;
@@ -201,7 +200,10 @@ TippyTaps : CodexHybrid {
 		buttonsComposite = CompositeView()
 		.layout = HLayout(toggleComposite, collapseComposite);
 
-		composite = CompositeView();
+		composite = CompositeView().minSize_(Size(
+			0, 
+			100	
+		));
 		composite.background = colorSequence.next;
 		composite.layout = VLayout(
 			text,
@@ -249,15 +251,14 @@ TippyTaps : CodexHybrid {
 			var argsComposite = CompositeView().layout = VLayout();
 			var compositesArr, text, textLabel, textComposite, ioComposite;
 
-			this.initIOs;
-			this.initSliders;
-
 			window = Window.new(
 				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
 				scroll: true
-			)
-			.front.alwaysOnTop_(true).layout = HLayout();
+			);
+
+			this.initIOs; 
+			this.initSliders;
 
 			textLabel = StaticText()
 			.align_(\center).string_("type here!")
@@ -300,9 +301,8 @@ TippyTaps : CodexHybrid {
 				arr.do{ | item | composite.layout.add(item) };
 				argsComposite.layout.add(composite);
 			};
-
-			window.layout.add(textComposite);
-			window.layout.add(argsComposite);
+			
+			window.layout = HLayout(textComposite, argsComposite);
 
 			window.view.keyDownAction = {
 				| view, letter, modifier, ascii, keycode, key |
@@ -320,6 +320,8 @@ TippyTaps : CodexHybrid {
 					);
 				}
 			};
+
+			window.front.alwaysOnTop_(true);
 		};
 	}
 
