@@ -1,6 +1,7 @@
 TippyTaps : CodexHybrid {
 	var colorSequence, <window, keyAction, group;
-	var sliders, toggles, composites, <ioViews, <ios;
+	var <sliders, toggles, composites, <ioViews, <ios;
+	var collapses;
 
 	*makeTemplates {  | templater |
 		templater.tippyTaps_synthDef;
@@ -47,7 +48,10 @@ TippyTaps : CodexHybrid {
 	initSliders {
 		sliders = ();
 		composites = ();
-		toggles = ();
+		toggles = (
+			reverse: (),
+			collapse: ()
+		);
 		modules.synthDef.specs.keysValuesDo({
 			| key, value |
 			this.formatSliders(key, value);
@@ -66,18 +70,7 @@ TippyTaps : CodexHybrid {
 		var coll = synthDefDesc.perform(type);
 		if(coll.isEmpty.not, {
 			var arr = [];
-			var title; 
-
-			if(type==\outputs, { 
-				title = "output busses";
-			}, { title = "input busses" });
-
-			arr = arr.add(
-				StaticText()
-				.align_(\center)
-				.string_(title)
-				.font_(Font.default.copy.size_(24));
-			);
+			var title;
 
 			coll.do { | desc, index |
 				var channels = desc.numberOfChannels;
@@ -92,15 +85,15 @@ TippyTaps : CodexHybrid {
 				var label = StaticText()
 				.align_(\center)
 				.string_(name.asString)
-				.font_(Font.default.copy.size_(18));
+				.font_(Font.default.copy.size_(14));
 
 				var box = NumberBox()
 				.align_(\center)
 				.string_(index + offset)
-				.font_(Font.default.copy.size_(18))
+				.font_(Font.default.copy.size_(14))
 				.action_({ | obj | ios[name] = obj.string });
 
-				composite.layout = HLayout(label, 400, box);
+				composite.layout = HLayout(label, box, 12);
 				arr = arr.add(composite);
 			};
 			ioViews[type] = arr;
@@ -112,9 +105,13 @@ TippyTaps : CodexHybrid {
 		var boxHi, boxHiText, boxHiComposite;
 		var text, slider, composite, boxView;
 		var toggle, toggleText, toggleComposite;
+		var collapse, collapseText, collapseComposite;
+		var buttonsComposite;
 
 		var font = Font.default.copy.size =
-		18 - modules.synthDef.specs.size.clip(1, 24, 0, 12);
+		18 - modules.synthDef.specs.size.clip(1, 24, 0, 6).asInteger;
+
+		var prevlo = 0, prevhi = 1;
 
 		text = StaticText().align_(\center)
 		.string_(format("% values", key.asString))
@@ -123,8 +120,18 @@ TippyTaps : CodexHybrid {
 		slider = RangeSlider().orientation_('horizontal')
 		.action_({ | obj |
 			var spec = modules.synthDef.specs[key];
+			if(toggles.collapse[key].value==1, {
+				case { obj.value.lo!=prevlo }{
+					obj.value.hi = obj.value.lo;
+				}{ obj.value.hi!=prevhi }{
+					obj.value.lo = obj.value.hi
+				};
+			});
+
 			boxLo.value = spec.map(obj.value.lo);
 			boxHi.value = spec.map(obj.value.hi);
+			prevlo = obj.value.lo;
+			prevhi = obj.value.hi;
 		});
 
 		//add slider to dictionary of sliders
@@ -161,14 +168,38 @@ TippyTaps : CodexHybrid {
 			["X", Color(1.0, 0.6, 0.9), Color.white]
 		]).font_(font);
 
-		toggles.add(key -> toggle);
+		toggles.reverse.add(key -> toggle);
 
 		toggleText = StaticText()
-		.align_(\center).font_(font).string = "Reverse mapping";
+		.align_(\center).font_(font).string = "reverse mapping";
 
-		toggleComposite = VLayout(
-			HLayout(CompositeView(), toggle, CompositeView()), toggleText
+		toggleComposite = CompositeView().layout_(
+			VLayout(toggle, toggleText)
 		);
+
+		collapse = Button()
+		.states_([
+			["", Color.black, Color.white],
+			["X", Color(1.0, 0.6, 0.9), Color.white]
+		]).font_(font)
+		.action_({
+			| obj |
+			if(obj.value==1, {
+				sliders[key].setSpanActive(sliders[key].lo, sliders[key].lo);
+			})
+		});
+
+		toggles.collapse.add(key -> collapse);
+
+		collapseText = StaticText()
+		.align_(\center).font_(font).string = "collapse range";
+
+		collapseComposite = CompositeView().layout_(
+			VLayout(collapse, collapseText)
+		);
+
+		buttonsComposite = CompositeView()
+		.layout = HLayout(toggleComposite, collapseComposite);
 
 		composite = CompositeView();
 		composite.background = colorSequence.next;
@@ -176,7 +207,7 @@ TippyTaps : CodexHybrid {
 			text,
 			slider,
 			boxView,
-			toggleComposite
+			buttonsComposite
 		);
 
 		slider.activeLo = 0;
@@ -201,7 +232,7 @@ TippyTaps : CodexHybrid {
 			| key, slider |
 			var sliderSpec = ControlSpec(slider.lo, slider.hi);
 			var asciiSpec;
-			if(toggles[key].value==0, {
+			if(toggles.reverse[key].value==0, {
 				asciiSpec = ControlSpec(48, 127, \lin, 1);
 			}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
 			arr = arr.add(key);
@@ -229,7 +260,7 @@ TippyTaps : CodexHybrid {
 			.front.alwaysOnTop_(true).layout = HLayout();
 
 			textLabel = StaticText()
-			.align_(\center).string_("Type here!")
+			.align_(\center).string_("type here!")
 			.font_(Font.default.copy.size_(24));
 
 			text = TextView()
@@ -245,7 +276,7 @@ TippyTaps : CodexHybrid {
 			};
 
 			textComposite = CompositeView()
-			.layout_(VLayout(ioComposite, textLabel, text));
+			.layout_(VLayout(textLabel, text, ioComposite));
 
 			compositesArr = composites.asArray;
 
