@@ -9,11 +9,11 @@ TippyTaps : CodexHybrid {
 
 	*contribute { | versions |
 		versions.add(
-			[\cobra_mono, Main.packages.asDict.at(\TippyTaps)+/+"cobra_mono"]
+			[\ian_mono, Main.packages.asDict.at(\TippyTaps)+/+"ian_mono"]
 		);
 
 		versions.add(
-			[\cobra_stereo, Main.packages.asDict.at(\TippyTaps)+/+"cobra_stereo"]
+			[\ian_stereo, Main.packages.asDict.at(\TippyTaps)+/+"ian_stereo"]
 		);
 	}
 
