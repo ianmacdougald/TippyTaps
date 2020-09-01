@@ -111,6 +111,8 @@ TippyTaps : CodexHybrid {
 			["X", Color(1.0, 0.5, 0.7), Color.white]
 		]).font_(font);
 
+		toggles.add(key -> toggle);
+
 		toggleText = StaticText()
 		.align_(\center).font_(font).string = "Reverse mapping";
 
@@ -147,9 +149,7 @@ TippyTaps : CodexHybrid {
 		var specs = modules.synthDef.specs;
 		sliders.keysValuesDo({
 			| key, slider |
-			var sliderSpec = ControlSpec(
-				slider.lo, slider.hi, specs[key].warp
-			);
+			var sliderSpec = ControlSpec(slider.lo, slider.hi);
 			var asciiSpec;
 			if(toggles[key].value==0, {
 				asciiSpec = ControlSpec(48, 127, \lin, 1);
@@ -157,7 +157,7 @@ TippyTaps : CodexHybrid {
 			arr = arr.add(key);
 			arr = arr.add(specs[key].map(
 				sliderSpec.map(asciiSpec.unmap(value));
-			).postln);
+			));
 		});
 		^arr;
 	}
@@ -206,7 +206,6 @@ TippyTaps : CodexHybrid {
 
 			window.view.keyDownAction = {
 				| view, letter, modifier, ascii, keycode, key |
-
 				if(ascii==13){
 					var arguments = this.getArguments(ascii.wrap(48, 127));
 					var newHeader;
