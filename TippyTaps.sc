@@ -90,7 +90,8 @@ TippyTaps : CodexHybrid {
 				.align_(\center)
 				.string_(index + offset)
 				.font_(Font.default.copy.size_(14))
-				.action_({ | obj | ios[name] = obj.string });
+				.action_({ | obj | ios[name] = obj.string })
+				.maxDecimals_(4);
 
 				composite.layout = HLayout(label, box, 12);
 				arr = arr.add(composite);
@@ -139,7 +140,7 @@ TippyTaps : CodexHybrid {
 		boxLo = NumberBox().action_({ | obj |
 			var spec = modules.synthDef.specs[key];
 			slider.activeLo = spec.unmap(obj.value);
-		}).font_(font);
+		}).font_(font).maxDecimals_(4);
 
 		boxLoText = StaticText().align_(\center)
 		.string_(format("% lo", key.asString)).font_(font);
@@ -150,7 +151,7 @@ TippyTaps : CodexHybrid {
 		boxHi = NumberBox().action_({ | obj |
 			var spec = modules.synthDef.specs[key];
 			slider.activeHi = spec.unmap(obj.value);
-		}).font_(font);
+		}).font_(font).maxDecimals_(4);
 
 		boxHiText = StaticText().align_(\center)
 		.string_(format("% hi", key.asString)).font_(font);
