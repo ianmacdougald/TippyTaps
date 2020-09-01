@@ -308,8 +308,7 @@ TippyTaps : CodexHybrid {
 				| view, letter, modifier, ascii, keycode, key |
 				if(ascii==13){
 					var arguments = this.getArguments(ascii.wrap(48, 127));
-					var newHeader;
-					text !? {text.string = newHeader++"\n\n"};
+					text !? { text.string = ""; }
 				}{
 					text !? {text.string = text.string++letter};
 					this.initGroup;
