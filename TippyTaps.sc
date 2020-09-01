@@ -19,15 +19,13 @@ TippyTaps : CodexHybrid {
 
 	initHybrid {
 		colorSequence = Pseq([
-			Color(1.0, 0.95, 0.6),
 			Color(0.5, 0.9, 1.0),
 			Color(0.6, 1.0, 0.7),
-			Color(1.0, 0.6, 0.9)
+			Color(1.0, 0.6, 0.9),
+			Color(1.0, 0.95, 0.6),
 		], inf).asStream;
 		Routine({
 			server.sync;
-			this.initSliders;
-			this.initIOs;
 			this.buildGui;
 		}).play(AppClock);
 	}
@@ -197,8 +195,8 @@ TippyTaps : CodexHybrid {
 		.layout = HLayout(toggleComposite, collapseComposite);
 
 		composite = CompositeView().minSize_(Size(
-			0, 
-			100	
+			0,
+			100
 		));
 		composite.background = colorSequence.next;
 		composite.layout = VLayout(
@@ -252,7 +250,7 @@ TippyTaps : CodexHybrid {
 				scroll: true
 			);
 
-			this.initIOs; 
+			this.initIOs;
 			this.initSliders;
 
 			textLabel = StaticText()
@@ -296,7 +294,7 @@ TippyTaps : CodexHybrid {
 				arr.do{ | item | composite.layout.add(item) };
 				argsComposite.layout.add(composite);
 			};
-			
+
 			window.layout = HLayout(textComposite, argsComposite);
 
 			window.view.keyDownAction = {
@@ -315,11 +313,6 @@ TippyTaps : CodexHybrid {
 
 			window.front.alwaysOnTop_(true);
 		};
-	}
-
-	reloadScripts {
-		super.reloadScripts;
-		this.buildGui;
 	}
 
 	close {
