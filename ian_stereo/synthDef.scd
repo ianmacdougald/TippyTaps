@@ -18,7 +18,7 @@ SynthDef(\synth, {
 		timescale * SampleRate.ir
 	) + (\pos.kr(0.5, spec: ControlSpec(0.0, 4.0)) * frames).wrap(0, frames);
 	var sig = BufRd.ar(
-		1,
+		2,
 		buf,
 		phasor
 	);
