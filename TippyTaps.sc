@@ -1,6 +1,6 @@
 TippyTaps : CodexHybrid {
 	var <typingLayout, colorSequence, asciiSpec;
-	var keyAction, text, sliders, views;
+	var keyAction, text, sliders, toggles, views, <group;
 	var <window, <>activeBuffer, <activeBufferIndex = 0;
 
 	*makeTemplates {  | templater |
@@ -29,8 +29,15 @@ TippyTaps : CodexHybrid {
 		this.buildGui;
 	}
 
-	reverseMappings { 
-		if(asciiSpec.minval==127, { 
+	initGroup {
+		group ?? {
+			group = Group.new;
+			group.onFree({ group = nil });
+		}
+	}
+
+	reverseMappings {
+		if(asciiSpec.minval==127, {
 			asciiSpec = ControlSpec(48, 127, \lin, 1);
 		}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
 	}
@@ -43,6 +50,7 @@ TippyTaps : CodexHybrid {
 	getDictionaries {
 		sliders = ();
 		views = ();
+		toggles = ();
 		modules.synthDef.specs.keysValuesDo({
 			| key, value |
 			this.buildComponent(key, value);
@@ -53,10 +61,14 @@ TippyTaps : CodexHybrid {
 		var boxLo, boxLoText, boxLoComposite;
 		var boxHi, boxHiText, boxHiComposite;
 		var text, slider, composite, boxView;
+		var toggle, toggleText, toggleComposite;
 
+		var font = Font.default.copy.size =
+		18 - modules.synthDef.specs.size.clip(1, 24, 0, 12);
 
 		text = StaticText().align_(\center)
-		.string_(format("% values", key.asString));
+		.string_(format("% values", key.asString))
+		.font_(font);
 
 		slider = RangeSlider().orientation_('horizontal')
 		.action_({ | obj |
@@ -71,21 +83,21 @@ TippyTaps : CodexHybrid {
 		boxLo = NumberBox().action_({ | obj |
 			var spec = modules.synthDef.specs[key];
 			slider.activeLo = spec.unmap(obj.value);
-		});
+		}).font_(font);
 
 		boxLoText = StaticText().align_(\center)
-		.string_(format("% lo", key.asString));
+		.string_(format("% lo", key.asString)).font_(font);
 
 		boxLoComposite = CompositeView()
-		.layout_(VLayout(boxLo, boxLoText));
+		.layout_(VLayout(boxLo, boxLoText)).font_(font);
 
 		boxHi = NumberBox().action_({ | obj |
 			var spec = modules.synthDef.specs[key];
 			slider.activeHi = spec.unmap(obj.value);
-		});
+		}).font_(font);
 
 		boxHiText = StaticText().align_(\center)
-		.string_(format("% hi", key.asString));
+		.string_(format("% hi", key.asString)).font_(font);
 
 		boxHiComposite = CompositeView()
 		.layout_(VLayout(boxHi, boxHiText));
@@ -93,9 +105,27 @@ TippyTaps : CodexHybrid {
 		boxView = CompositeView()
 		.layout_(HLayout(boxLoComposite, boxHiComposite));
 
+		toggle = Button()
+		.states_([
+			["", Color.black, Color.white],
+			["X", Color(1.0, 0.5, 0.7), Color.white]
+		]).font_(font);
+
+		toggleText = StaticText()
+		.align_(\center).font_(font).string = "Reverse mapping";
+
+		toggleComposite = VLayout(
+			HLayout(CompositeView(), toggle, CompositeView()), toggleText
+		);
+
 		composite = CompositeView();
 		composite.background = colorSequence.next;
-		composite.layout = VLayout(text, slider, boxView);
+		composite.layout = VLayout(
+			text,
+			slider,
+			boxView,
+			toggleComposite
+		);
 
 		slider.activeLo = 0;
 		slider.activeHi = 1;
@@ -117,11 +147,17 @@ TippyTaps : CodexHybrid {
 		var specs = modules.synthDef.specs;
 		sliders.keysValuesDo({
 			| key, slider |
-			var tmpspec = ControlSpec(slider.lo, slider.hi);
+			var sliderSpec = ControlSpec(
+				slider.lo, slider.hi, specs[key].warp
+			);
+			var asciiSpec;
+			if(toggles[key].value==0, {
+				asciiSpec = ControlSpec(48, 127, \lin, 1);
+			}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
 			arr = arr.add(key);
 			arr = arr.add(specs[key].map(
-				tmpspec.map(asciiSpec.unmap(value));
-			));
+				sliderSpec.map(asciiSpec.unmap(value));
+			).postln);
 		});
 		^arr;
 	}
@@ -131,7 +167,7 @@ TippyTaps : CodexHybrid {
 			var argsComposite = CompositeView().layout = VLayout();
 			var viewsArr;
 			window = Window.new(
-				moduleSet.asString,	
+				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
 				scroll: true
 			)
@@ -177,9 +213,11 @@ TippyTaps : CodexHybrid {
 					text !? {text.string = newHeader++"\n\n"};
 				}{
 					text !? {text.string = text.string++letter};
+					this.initGroup;
 					Synth(
 						modules.synthDef.name,
-						this.getArguments(ascii.wrap(48, 127));
+						this.getArguments(ascii.wrap(48, 127)),
+						group
 					);
 				}
 			};
@@ -191,12 +229,11 @@ TippyTaps : CodexHybrid {
 		this.buildGui;
 	}
 
-	free {
-		if(window.isNil.not){
-			window.onClose = nil;
+	close {
+		if( window.notNil and: { window.isClosed.not }, {
 			window.close;
-			window = nil;
-		};
+			if(group.notNil, { group.free });
+		});
 	}
 
 }
