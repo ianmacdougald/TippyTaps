@@ -18,10 +18,10 @@ TippyTaps : CodexHybrid {
 
 	initHybrid {
 		colorSequence = Pseq([
-			Color(0.501, 0.91, 0.98),
+			Color(1.0, 0.95, 0.6),
+			Color(0.5, 0.9, 1.0),
 			Color(0.6, 1.0, 0.7),
-			Color(1.0, 0.5, 0.7),
-			Color(1.0, 1.0, 0.0)
+			Color(1.0, 0.6, 0.9)
 		], inf).asStream;
 		Routine({
 			server.sync;
@@ -50,7 +50,7 @@ TippyTaps : CodexHybrid {
 		toggles = ();
 		modules.synthDef.specs.keysValuesDo({
 			| key, value |
-			this.sliders(key, value);
+			this.formatSliders(key, value);
 		});
 	}
 
@@ -81,7 +81,7 @@ TippyTaps : CodexHybrid {
 					{ channels - 1 },
 					{ 0 }
 				);
-				var name = desc.startingChannel.asSymbol.postln;
+				var name = desc.startingChannel.asSymbol;
 				var composite = CompositeView();
 
 				var label = StaticText()
@@ -102,7 +102,7 @@ TippyTaps : CodexHybrid {
 		});
 	}
 
-	sliders { | key |
+	formatSliders { | key |
 		var boxLo, boxLoText, boxLoComposite;
 		var boxHi, boxHiText, boxHiComposite;
 		var text, slider, composite, boxView;
@@ -153,7 +153,7 @@ TippyTaps : CodexHybrid {
 		toggle = Button()
 		.states_([
 			["", Color.black, Color.white],
-			["X", Color(1.0, 0.5, 0.7), Color.white]
+			["X", Color(1.0, 0.6, 0.9), Color.white]
 		]).font_(font);
 
 		toggles.add(key -> toggle);
@@ -212,6 +212,10 @@ TippyTaps : CodexHybrid {
 		if(window.isNil or: { window.isClosed }){
 			var argsComposite = CompositeView().layout = VLayout();
 			var compositesArr, text, textLabel, textComposite, ioComposite;
+
+			this.initIOs;
+			this.initSliders;
+
 			window = Window.new(
 				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
