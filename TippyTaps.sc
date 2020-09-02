@@ -1,7 +1,7 @@
 //Note: input and output argument fields don't work with synths yet.
 TippyTaps : CodexHybrid {
 	var colorSequence, <window, keyAction, <>group;
-	var sliders, toggles, composites, ioViews, ios;
+	var sliders, toggles, composites, <ios;
 
 	*makeTemplates {  | templater |
 		templater.tippyTaps_synthDef;
@@ -26,6 +26,7 @@ TippyTaps : CodexHybrid {
 		], inf).asStream;
 		Routine({
 			server.sync;
+			this.initIOs;
 			this.buildGui;
 		}).play(AppClock);
 	}
@@ -49,49 +50,22 @@ TippyTaps : CodexHybrid {
 	}
 
 	initIOs {
+		var desc = this.class.cache[moduleSet].synthDef.desc;
+		var count = 0;
+		var fillIO = { | coll | 
+			if(coll.isEmpty.not, { 
+				coll.do { | io |
+					ios.add(io.startingChannel.asSymbol -> count);	
+					count = count + 1 + (io.numberOfChannels - 1);
+				};
+			})
+		};
 		ios = ();
-		ioViews = ();
-		this.fillIOs(\inputs);
-		this.fillIOs(\outputs);
+		fillIO.value(desc.outputs);
+		fillIO.value(desc.inputs);
 	}
 
-	fillIOs { | type(\outputs) |
-		var synthDefDesc = this.class.cache[moduleSet].synthDef.desc;
-		var coll = synthDefDesc.perform(type);
-		if(coll.isEmpty.not, {
-			var arr = [];
-			var title;
-
-			coll.do { | desc, index |
-				var channels = desc.numberOfChannels;
-				var offset = if(
-					channels >= 2 and: { index > 0 },
-					{ channels - 1 },
-					{ 0 }
-				);
-				var name = desc.startingChannel.asSymbol;
-				var composite = CompositeView();
-
-				var label = StaticText()
-				.align_(\center)
-				.string_(name.asString)
-				.font_(Font.default.copy.size_(14));
-
-				var box = NumberBox()
-				.align_(\center)
-				.string_(index + offset)
-				.font_(Font.default.copy.size_(14))
-				.action_({ | obj | ios[name] = obj.string })
-				.maxDecimals_(4);
-
-				box.valueAction = 0;
-
-				composite.layout = HLayout(label, box, 12);
-				arr = arr.add(composite);
-			};
-			ioViews[type] = arr;
-		});
-	}
+	setBus { | key, value | ios[key] = value }
 
 	formatSliders { | key |
 		var boxLo, boxLoText, boxLoComposite;
@@ -236,7 +210,7 @@ TippyTaps : CodexHybrid {
 				sliderSpec.map(asciiSpec.unmap(value));
 			));
 		});
-		^(arr++ios.asPairs);
+		^(arr++ios.asPairs).postln;
 	}
 
 	buildGui {
@@ -250,7 +224,6 @@ TippyTaps : CodexHybrid {
 				scroll: true
 			);
 
-//			this.initIOs;
 			this.initSliders;
 
 			textLabel = StaticText()
@@ -262,16 +235,8 @@ TippyTaps : CodexHybrid {
 			.focus(true)
 			.editable_(false);
 
-/*			ioComposite = CompositeView().layout = VLayout();
-			ioViews.do{ | array |
-				if(array.isEmpty.not, {
-					array.do{ | item | ioComposite.layout.add(item) };
-				});
-			}; */
-
 			textComposite = CompositeView()
 			.layout_(VLayout(textLabel, text));	
-			//.layout_(VLayout(textLabel, text, ioComposite));
 
 			compositesArr = composites.asArray;
 
