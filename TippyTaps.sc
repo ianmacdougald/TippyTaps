@@ -250,7 +250,7 @@ TippyTaps : CodexHybrid {
 				scroll: true
 			);
 
-			this.initIOs;
+//			this.initIOs;
 			this.initSliders;
 
 			textLabel = StaticText()
@@ -262,15 +262,16 @@ TippyTaps : CodexHybrid {
 			.focus(true)
 			.editable_(false);
 
-			ioComposite = CompositeView().layout = VLayout();
+/*			ioComposite = CompositeView().layout = VLayout();
 			ioViews.do{ | array |
 				if(array.isEmpty.not, {
 					array.do{ | item | ioComposite.layout.add(item) };
 				});
-			};
+			}; */
 
 			textComposite = CompositeView()
-			.layout_(VLayout(textLabel, text, ioComposite));
+			.layout_(VLayout(textLabel, text));	
+			//.layout_(VLayout(textLabel, text, ioComposite));
 
 			compositesArr = composites.asArray;
 
