@@ -1,11 +1,7 @@
 //Note: input and output argument fields don't work with synths yet.
-TippyTaps : CodexHybrid {
-	var colorSequence, <window, keyAction, <>group;
-	var sliders, toggles, composites, <ios;
-
-	*makeTemplates {  | templater |
-		templater.tippyTaps_synthDef;
-	}
+TippyTaps : CodexInstrument {
+	var keyAction, sliders, toggles; 
+	var composites, ascii, colorSequence;
 
 	*contribute { | versions |
 		versions.add(
@@ -15,25 +11,6 @@ TippyTaps : CodexHybrid {
 		versions.add(
 			[\ian_stereo, Main.packages.asDict.at(\TippyTaps)+/+"ian_stereo"]
 		);
-	}
-
-	initHybrid {
-		colorSequence = Pseq([
-			Color(0.5, 0.9, 1.0),
-			Color(0.6, 1.0, 0.7),
-			Color(1.0, 0.6, 0.9),
-			Color(1.0, 0.95, 0.6),
-		], inf).asStream;
-		Routine({
-			server.sync;
-			this.initIOs;
-			this.buildGui;
-		}).play(AppClock);
-	}
-
-	moduleSet_{ | to, from |
-		window.close;
-		super.moduleSet_(to, from);
 	}
 
 	initSliders {
@@ -48,24 +25,6 @@ TippyTaps : CodexHybrid {
 			this.formatSliders(key, value);
 		});
 	}
-
-	initIOs {
-		var desc = this.class.cache[moduleSet].synthDef.desc;
-		var count = 0;
-		var fillIO = { | coll | 
-			if(coll.isEmpty.not, { 
-				coll.do { | io |
-					ios.add(io.startingChannel.asSymbol -> count);	
-					count = count + 1 + (io.numberOfChannels - 1);
-				};
-			})
-		};
-		ios = ();
-		fillIO.value(desc.outputs);
-		fillIO.value(desc.inputs);
-	}
-
-	setBus { | key, value | ios[key] = value }
 
 	formatSliders { | key |
 		var boxLo, boxLoText, boxLoComposite;
@@ -195,34 +154,46 @@ TippyTaps : CodexHybrid {
 		});
 	}
 
-	getArguments { | value |
-		var arr = [];
-		var specs = modules.synthDef.specs;
-		sliders.keysValuesDo({
-			| key, slider |
+	getArguments { | specs |
+		var arr;
+		specs.keysValuesDo({ | key, value | 
+			var slider = sliders[key];
 			var sliderSpec = ControlSpec(slider.lo, slider.hi);
-			var asciiSpec;
-			if(toggles.reverse[key].value==0, {
+			var asciiSpec; 
+			if(toggles.reverse[key].value==0)
+			{
 				asciiSpec = ControlSpec(48, 127, \lin, 1);
-			}, { asciiSpec = ControlSpec(127, 48, \lin, 1) });
-			arr = arr.add(key);
+			}
+			//else
+			{
+				asciiSpec = ControlSpec(127, 48, \lin, 1);
+			};
+			arr = arr.add(key); 
 			arr = arr.add(specs[key].map(
-				sliderSpec.map(asciiSpec.unmap(value));
+				sliderSpec.map(asciiSpec.unmap(ascii));
 			));
 		});
-		^(arr++ios.asPairs).postln;
+		^arr;
 	}
 
-	buildGui {
-		if(window.isNil or: { window.isClosed }){
-			var argsComposite = CompositeView().layout = VLayout();
-			var compositesArr, text, textLabel, textComposite, ioComposite;
-
-			window = Window.new(
+	initInstrument {
+			var argsComposite, compositesArr; 
+			var text, textLabel, textComposite; 
+			
+			argsComposite = CompositeView().layout = VLayout();
+			
+			colorSequence = Pseq([
+				Color(0.5, 0.9, 1.0),
+				Color(0.6, 1.0, 0.7),
+				Color(1.0, 0.6, 0.9),
+				Color(1.0, 0.95, 0.6),
+			], inf).asStream;
+	
+			this.window = Window.new(
 				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
 				scroll: true
-			);
+			).alwaysOnTop_(true).front;
 
 			this.initSliders;
 
@@ -264,27 +235,19 @@ TippyTaps : CodexHybrid {
 			window.layout = HLayout(textComposite, argsComposite);
 
 			window.view.keyDownAction = {
-				| view, letter, modifier, ascii, keycode, key |
-				if(ascii==13){
+				| view, letter, modifier, asciiVal, keycode, key |
+				if(ascii==13)
+				{
 					text !? { text.string = ""; }
-				}{
-					text !? {text.string = text.string++letter};
-					Synth(
-						modules.synthDef.name,
-						this.getArguments(ascii.wrap(48, 127)),
-						group ?? { server.defaultGroup }
-					);
+				}
+				//else
+				{
+					text !? {
+						text.string = text.string++letter
+					};
+					ascii  = asciiVal.wrap(48, 127);
+					this.makeSynth;
 				}
 			};
-
-			window.front.alwaysOnTop_(true);
-		};
-	}
-
-	close {
-		if( window.notNil and: { window.isClosed.not }, {
-			window.close;
-		});
-	}
-
+		}
 }
