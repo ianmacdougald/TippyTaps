@@ -237,15 +237,13 @@ TippyTaps : CodexInstrument {
 
 		window.view.keyDownAction = {
 			| view, letter, modifier, asciiVal, keycode, key |
-			if(ascii==13)
+			if(asciiVal==13)
 			{
-				text !? { text.string = ""; }
+				text.string = "";
 			}
 			//else
 			{
-				text !? {
-					text.string = text.string++letter
-				};
+				text.string = text.string++letter;
 				ascii  = asciiVal.wrap(48, 127);
 				this.makeSynth;
 			}
