@@ -178,77 +178,77 @@ TippyTaps : CodexInstrument {
 	}
 
 	initInstrument {
-			var argsComposite, compositesArr;
-			var text, textLabel, textComposite;
+		var argsComposite, compositesArr;
+		var text, textLabel, textComposite;
 
-			argsComposite = CompositeView().layout = VLayout();
+		argsComposite = CompositeView().layout = VLayout();
 
-			colorSequence = Pseq([
-				Color(0.5, 0.9, 1.0),
-				Color(0.6, 1.0, 0.7),
-				Color(1.0, 0.6, 0.9),
-				Color(1.0, 0.95, 0.6),
-			], inf).asStream;
+		colorSequence = Pseq([
+			Color(0.5, 0.9, 1.0),
+			Color(0.6, 1.0, 0.7),
+			Color(1.0, 0.6, 0.9),
+			Color(1.0, 0.95, 0.6),
+		], inf).asStream;
 
-			this.window = Window.new(
-				moduleSet.asString,
-				Rect(800, 0.0, 800, 1000),
-				scroll: true
-			).alwaysOnTop_(true).front;
+		this.window = Window.new(
+			moduleSet.asString,
+			Rect(800, 0.0, 800, 1000),
+			scroll: true
+		).alwaysOnTop_(true).front;
 
-			this.initSliders;
+		this.initSliders;
 
-			textLabel = StaticText()
-			.align_(\center).string_("type here!")
-			.font_(Font.default.copy.size_(24));
+		textLabel = StaticText()
+		.align_(\center).string_("type here!")
+		.font_(Font.default.copy.size_(24));
 
-			text = TextView()
-			.font_(Font.default.copy.size_(18))
-			.focus(true)
-			.editable_(false);
+		text = TextView()
+		.font_(Font.default.copy.size_(18))
+		.focus(true)
+		.editable_(false);
 
-			textComposite = CompositeView()
-			.layout_(VLayout(textLabel, text));
+		textComposite = CompositeView()
+		.layout_(VLayout(textLabel, text));
 
-			compositesArr = composites.asArray;
+		compositesArr = composites.asArray;
 
-			if(composites.size.odd, {
-				var tmpArr = compositesArr[0..(compositesArr.size - 2)];
-				tmpArr = tmpArr.reshape(
-					(tmpArr.size / 2).asInteger,
-					2
-				);
-				compositesArr = tmpArr++[compositesArr.last];
-			}, {
-				compositesArr = compositesArr.reshape(
-					(compositesArr.size / 2).asInteger,
-					2
-				);
-			});
+		if(composites.size.odd, {
+			var tmpArr = compositesArr[0..(compositesArr.size - 2)];
+			tmpArr = tmpArr.reshape(
+				(tmpArr.size / 2).asInteger,
+				2
+			);
+			compositesArr = tmpArr++[compositesArr.last];
+		}, {
+			compositesArr = compositesArr.reshape(
+				(compositesArr.size / 2).asInteger,
+				2
+			);
+		});
 
-			compositesArr.do { | arr |
-				var composite = CompositeView();
-				composite.layout = HLayout.new;
-				arr.do{ | item | composite.layout.add(item) };
-				argsComposite.layout.add(composite);
-			};
+		compositesArr.do { | arr |
+			var composite = CompositeView();
+			composite.layout = HLayout.new;
+			arr.do{ | item | composite.layout.add(item) };
+			argsComposite.layout.add(composite);
+		};
 
-			window.layout = HLayout(textComposite, argsComposite);
+		window.layout = HLayout(textComposite, argsComposite);
 
-			window.view.keyDownAction = {
-				| view, letter, modifier, asciiVal, keycode, key |
-				if(ascii==13)
-				{
-					text !? { text.string = ""; }
-				}
-				//else
-				{
-					text !? {
-						text.string = text.string++letter
-					};
-					ascii  = asciiVal.wrap(48, 127);
-					this.makeSynth;
-				}
-			};
-		}
+		window.view.keyDownAction = {
+			| view, letter, modifier, asciiVal, keycode, key |
+			if(ascii==13)
+			{
+				text !? { text.string = ""; }
+			}
+			//else
+			{
+				text !? {
+					text.string = text.string++letter
+				};
+				ascii  = asciiVal.wrap(48, 127);
+				this.makeSynth;
+			}
+		};
+	}
 }
