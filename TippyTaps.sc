@@ -1,15 +1,16 @@
 //Note: input and output argument fields don't work with synths yet.
 TippyTaps : CodexInstrument {
-	var keyAction, sliders, toggles; 
+	var keyAction, sliders, toggles;
 	var composites, ascii, colorSequence;
 
 	*contribute { | versions |
+		var path = Main.packages.asDict.at(\TippyTaps);
 		versions.add(
-			[\ian_mono, Main.packages.asDict.at(\TippyTaps)+/+"ian_mono"]
+			[\ian_mono, path+/+"ian_mono"]
 		);
 
 		versions.add(
-			[\ian_stereo, Main.packages.asDict.at(\TippyTaps)+/+"ian_stereo"]
+			[\ian_stereo, path+/+"ian_stereo"]
 		);
 	}
 
@@ -156,10 +157,10 @@ TippyTaps : CodexInstrument {
 
 	getArguments { | specs |
 		var arr;
-		specs.keysValuesDo({ | key, value | 
+		specs.keysValuesDo({ | key, value |
 			var slider = sliders[key];
 			var sliderSpec = ControlSpec(slider.lo, slider.hi);
-			var asciiSpec; 
+			var asciiSpec;
 			if(toggles.reverse[key].value==0)
 			{
 				asciiSpec = ControlSpec(48, 127, \lin, 1);
@@ -168,7 +169,7 @@ TippyTaps : CodexInstrument {
 			{
 				asciiSpec = ControlSpec(127, 48, \lin, 1);
 			};
-			arr = arr.add(key); 
+			arr = arr.add(key);
 			arr = arr.add(specs[key].map(
 				sliderSpec.map(asciiSpec.unmap(ascii));
 			));
@@ -177,18 +178,18 @@ TippyTaps : CodexInstrument {
 	}
 
 	initInstrument {
-			var argsComposite, compositesArr; 
-			var text, textLabel, textComposite; 
-			
+			var argsComposite, compositesArr;
+			var text, textLabel, textComposite;
+
 			argsComposite = CompositeView().layout = VLayout();
-			
+
 			colorSequence = Pseq([
 				Color(0.5, 0.9, 1.0),
 				Color(0.6, 1.0, 0.7),
 				Color(1.0, 0.6, 0.9),
 				Color(1.0, 0.95, 0.6),
 			], inf).asStream;
-	
+
 			this.window = Window.new(
 				moduleSet.asString,
 				Rect(800, 0.0, 800, 1000),
@@ -207,7 +208,7 @@ TippyTaps : CodexInstrument {
 			.editable_(false);
 
 			textComposite = CompositeView()
-			.layout_(VLayout(textLabel, text));	
+			.layout_(VLayout(textLabel, text));
 
 			compositesArr = composites.asArray;
 
