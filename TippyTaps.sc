@@ -5,6 +5,7 @@ TippyTaps : CodexInstrument {
 
 	*contribute { | versions |
 		var path = Main.packages.asDict.at(\TippyTaps);
+
 		versions.add(
 			[\ian_mono, path+/+"ian_mono"]
 		);
@@ -12,6 +13,11 @@ TippyTaps : CodexInstrument {
 		versions.add(
 			[\ian_stereo, path+/+"ian_stereo"]
 		);
+
+		versions.add(
+			[\ian_pad, path+/+"ian_pad"]
+		);
+
 	}
 
 	initSliders {
