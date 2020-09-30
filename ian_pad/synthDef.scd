@@ -1,6 +1,6 @@
 var s = Server.default;
 var scale = Scale.zhi
-.degrees.collect({ | item | item + [0, 7, 14, 21] })
+.degrees.collect({ | item | item + [0, 7, 14, 21, 28] })
 .flat.sort.as(FloatArray);
 var buffer = Buffer.alloc(
 	s,
@@ -11,7 +11,7 @@ var buffer = Buffer.alloc(
 SynthDef(\synth, {
 	var atk = \atk.kr(
 		0.2,
-		spec: ControlSpec(0.2, 4.0)
+		spec: ControlSpec(0.05, 4.0)
 	);
 	var release = \release.kr(
 		1,
@@ -30,11 +30,11 @@ SynthDef(\synth, {
 		buffer.bufnum,
 		\freq.kr(
 			0,
-			spec: ControlSpec(0, 79, \lin, 1)
+			spec: ControlSpec(0, scale.size * 4, \lin, 1)
 		) % scale.size,
 		12,
 		1,
-		60
+		48
 	).midicps;
 	var ffreq = (freq * ExpRand(1.5, 4.0)).clip(20.0, 16000.0);
 	var width_freq = timescale * \width_freq.kr(
@@ -54,7 +54,8 @@ SynthDef(\synth, {
 	sig = sig * env
 	* \ampDb.kr(
 		-12,
-		spec: ControlSpec(-18, -48)
+		spec: ControlSpec(-24, -48)
 	).dbamp;
+	sig = Pan2.ar(sig, Rand(-1.0, 1.0));
 	Out.ar(\out.kr(0), sig);
 });
