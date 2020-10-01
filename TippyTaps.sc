@@ -1,5 +1,6 @@
 //Note: input and output argument fields don't work with synths yet.
 TippyTaps : CodexInstrument {
+	var keysDown, synths;
 	var keyAction, sliders, toggles;
 	var composites, ascii, colorSequence;
 
@@ -187,6 +188,9 @@ TippyTaps : CodexInstrument {
 		var argsComposite, compositesArr;
 		var text, textLabel, textComposite;
 
+		synths = Dictionary.new;
+		keysDown = Dictionary.new;
+
 		argsComposite = CompositeView().layout = VLayout();
 
 		colorSequence = Pseq([
@@ -249,10 +253,34 @@ TippyTaps : CodexInstrument {
 			}
 			//else
 			{
-				text.string = text.string++letter;
-				ascii  = asciiVal.wrap(48, 127);
-				this.makeSynth;
-			}
+				keysDown.at(letter.asSymbol) ?? {
+					text.string = text.string++letter;
+					ascii  = asciiVal.wrap(48, 127);
+					this.makeSynth(letter.asSymbol);
+					keysDown.add(letter.asSymbol -> letter);
+				};
+			};
 		};
+
+		window.view.keyUpAction = {
+			| view, letter, modifier, asciiVal, keycode, key |
+			if(asciiVal!=13)
+			{
+				this.releaseSynth(letter.asSymbol);
+				keysDown.removeAt(letter.asSymbol);
+			};
+		};
+	}
+
+	makeSynth { | symbol |
+		synths.at(symbol) ?? {
+			synths.add(symbol -> super.makeSynth);
+		};
+	}
+
+	releaseSynth { | symbol |
+		if(synths.at(symbol).isPlaying, {
+			synths.removeAt(symbol).release;
+		});
 	}
 }
