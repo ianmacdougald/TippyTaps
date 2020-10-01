@@ -43,7 +43,7 @@ TippyTaps : CodexInstrument {
 		var buttonsComposite;
 
 		var font = Font.default.copy.size =
-		18 - modules.synthDef.specs.size.clip(1, 24, 0, 6).asInteger;
+		21 - modules.synthDef.specs.size.explin(1, 12, 0.0, 12.0);
 
 		var prevlo = 0, prevhi = 1;
 
@@ -74,24 +74,28 @@ TippyTaps : CodexInstrument {
 		boxLo = NumberBox().action_({ | obj |
 			var spec = modules.synthDef.specs[key];
 			slider.activeLo = spec.unmap(obj.value);
-		}).font_(font).maxDecimals_(4);
+		}).font_(font).maxDecimals_(4).align_(\center)
+		.minSize_(Size(0, font.size * 1.5));
 
 		boxLoText = StaticText().align_(\center)
 		.string_(format("% lo", key.asString)).font_(font);
 
 		boxLoComposite = CompositeView()
-		.layout_(VLayout(boxLo, boxLoText)).font_(font);
+		.layout_(VLayout(boxLo, boxLoText))
+		.minSize_(Size(0, font.size * 5));
 
 		boxHi = NumberBox().action_({ | obj |
 			var spec = modules.synthDef.specs[key];
-			slider.activeHi = spec.unmap(obj.value);
-		}).font_(font).maxDecimals_(4);
+			slider.activeLo = spec.unmap(obj.value);
+		}).font_(font).maxDecimals_(4).align_(\center)
+		.minSize_(Size(0, font.size * 1.5));
 
 		boxHiText = StaticText().align_(\center)
 		.string_(format("% hi", key.asString)).font_(font);
 
 		boxHiComposite = CompositeView()
-		.layout_(VLayout(boxHi, boxHiText));
+		.layout_(VLayout(boxHi, boxHiText))
+		.minSize_(Size(0, font.size * 5));
 
 		boxView = CompositeView()
 		.layout_(HLayout(boxLoComposite, boxHiComposite));
@@ -109,7 +113,7 @@ TippyTaps : CodexInstrument {
 
 		toggleComposite = CompositeView().layout_(
 			VLayout(toggle, toggleText)
-		);
+		).minSize_(Size(0, font.size * 5));
 
 		collapse = Button()
 		.states_([
@@ -130,14 +134,14 @@ TippyTaps : CodexInstrument {
 
 		collapseComposite = CompositeView().layout_(
 			VLayout(collapse, collapseText)
-		);
+		).minSize_(Size(0, font.size * 5));
 
 		buttonsComposite = CompositeView()
 		.layout = HLayout(toggleComposite, collapseComposite);
 
 		composite = CompositeView().minSize_(Size(
 			0,
-			100
+			50
 		));
 		composite.background = colorSequence.next;
 		composite.layout = VLayout(
