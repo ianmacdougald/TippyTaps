@@ -1,7 +1,7 @@
 TITLE::TippyTaps
 summary::A keyboard sampler instrument
-categories::Libraries/CodexIan>Instruments
-keyword:: tippy, taps
+categories::Libraries>CodexIan
+keyword:: tippytaps, instrument
 
 Description::
 TippyTaps is a keyboard sampler instrument whose functionality is configurable per the CodexIan framework. 
