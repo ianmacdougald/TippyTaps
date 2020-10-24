@@ -1,4 +1,3 @@
-//Note: input and output argument fields don't work with synths yet.
 TippyTaps : CodexInstrument {
 	var keysDown, synths;
 	var keyAction, sliders, toggles;
