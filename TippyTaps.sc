@@ -1,5 +1,5 @@
 TippyTaps : CodexInstrument {
-	var keysDown, synths;
+	var keysDown, synths, textView;
 	var keyAction, sliders, toggles;
 	var composites, ascii, colorSequence;
 
@@ -215,13 +215,13 @@ TippyTaps : CodexInstrument {
 		.align_(\center).string_("type here!")
 		.font_(Font.default.copy.size_(24));
 
-		text = TextView()
+		textView = TextView()
 		.font_(Font.default.copy.size_(18))
 		.focus(true)
 		.editable_(false);
 
 		textComposite = CompositeView()
-		.layout_(VLayout(textLabel, text));
+		.layout_(VLayout(textLabel, textView));
 
 		compositesArr = composites.asArray;
 
@@ -252,15 +252,12 @@ TippyTaps : CodexInstrument {
 			| view, letter, modifier, asciiVal, keycode, key |
 			if(asciiVal==13)
 			{
-				text.string = "";
+				textView.string = "";
 			}
 			//else
 			{
 				keysDown.at(letter.asSymbol) ?? {
-					text.string = text.string++letter;
-					ascii  = asciiVal.wrap(48, 127);
-					this.makeSynth(letter.asSymbol);
-					keysDown.add(letter.asSymbol -> letter);
+					this.setChar(letter);
 				};
 			};
 		};
@@ -273,6 +270,18 @@ TippyTaps : CodexInstrument {
 				keysDown.removeAt(letter.asSymbol);
 			};
 		};
+	}
+
+	setChar { | char |
+		case { char.isKindOf(Char) }{
+		textView.string = textView.string++char;
+		ascii  = char.asInteger.wrap(48, 127);
+		this.makeSynth(char.asSymbol);
+		}
+		{ char.isSymbol }{
+			textView.string = "";
+		};
+		// keysDown.add(letter.asSymbol -> letter);
 	}
 
 	makeSynth { | symbol |

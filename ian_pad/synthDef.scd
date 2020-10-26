@@ -11,11 +11,11 @@ var buffer = Buffer.alloc(
 SynthDef(\synth, {
 	var atk = \atk.kr(
 		0.2,
-		spec: ControlSpec(0.05, 4.0)
+		spec: ControlSpec(0.01, 2.0, \exp)
 	);
 	var release = \release.kr(
 		1,
-		spec: ControlSpec(0.2, 4.0)
+		spec: ControlSpec(0.01, 2.0, \exp)
 	);
 	var timescale = \timescale.kr(
 		1,
