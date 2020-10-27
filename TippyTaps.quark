@@ -1,0 +1,9 @@
+(
+name: "TippyTaps", 
+summary: "Modular keyboard instrument", 
+author: "ianmacdougald", 
+version: "0.1.1", 
+dependencies: ["CodexIan"], 
+copyright: "ianmacdougald", 
+license: "GPL"
+)
