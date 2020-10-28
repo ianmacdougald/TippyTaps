@@ -89,7 +89,7 @@ s.waitForBoot({
 		var in = In.ar(\in.kr(0), 2);
 		ReplaceOut.ar(
 			\out.kr(0),
-			FieldsteelReverb.ar(in.sum / 2)
+			FreeVerb.ar(in, 1)
 			.blend(in, 1 - \wet.kr(0.2, 0.2)).tanh * 0.8
 		)
 	}).add;
@@ -98,7 +98,7 @@ s.waitForBoot({
 		var in = In.ar(\in.kr(0), 2);
 		Out.ar(
 			\out.kr(0),
-			FieldsteelReverb.ar(in.sum / 2)
+			FreeVerb.ar(in, 1)
 			.blend(in, 1 - \wet.kr(0.5, 0.2)) * \ampDb.kr(-18).dbamp;
 		);
 	}).add;
