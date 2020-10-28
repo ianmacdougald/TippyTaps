@@ -1,3 +1,4 @@
+//To run, make sure the Feedback quark is installed.
 (
 s.options.memSize = 2.pow(20);
 s.quit;
